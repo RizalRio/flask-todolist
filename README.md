@@ -25,8 +25,6 @@ Aplikasi manajemen tugas (To-Do List) modern dengan fitur lengkap, dibangun meng
 
 ## 📸 Screenshots
 
-*(Kamu bisa ganti bagian ini dengan screenshot aplikasi aslimu nanti)*
-
 | Halaman Login | Dashboard Utama |
 |:---:|:---:|
 | ![Login UI](https://via.placeholder.com/400x300?text=Login+Screen) | ![Dashboard UI](https://via.placeholder.com/400x300?text=Dashboard+Screen) |
@@ -47,8 +45,8 @@ Ikuti langkah ini untuk menjalankan proyek di komputer kamu:
 
 ### 1. Clone Repository
 ```bash
-git clone [https://github.com/username-kamu/nama-repo.git](https://github.com/username-kamu/nama-repo.git)
-cd nama-repo
+git clone [https://github.com/RizalRio/flask-todolist.git](https://github.com/RizalRio/flask-todolist.git)
+cd flask-todolist
 ```
 
 ### 2. Buat Virtual Environment (Opsional tapi Disarankan)
@@ -114,13 +112,3 @@ Open Pull Request
 Distributed under the MIT License. See LICENSE for more information.
 
 <center> Dibuat dengan ❤️ oleh <a href="https://www.google.com/search?q=https://github.com/username-kamu">Rizal Rio Andiran</a> </center>
-
-
------  
-
-### Tips Tambahan Biar Repo Makin Kece:
-
-1.  **Ganti Username:** Jangan lupa ganti bagian `username-kamu` dan `nama-repo` di kode di atas dengan link GitHub aslimu.
-2.  **Screenshot:** Nanti kalau sempat, kamu screenshot tampilan web-nya di laptop (pake Snipping Tool), upload gambarnya ke folder repo (bikin folder `screenshots` misalnya), terus ganti link `https://via.placeholder...` itu dengan path gambarmu (contoh: `screenshots/dashboard.png`). Visual itu penting banget\!
-
-Gimana bro? Udah siap push ke GitHub? Atau mau dibantu cara `git push`-nya sekalian
