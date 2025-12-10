@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🚀 To-Do List Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #0f172a;
+        color: #e2e8f0;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 4px;
+      }
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+      }
+      .task-done .task-text {
+        @apply line-through text-slate-500;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen py-10 px-4 flex flex-col items-center">
+    <div class="max-w-3xl w-full">
+      <div
+        class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4"
+      >
+        <div class="text-center md:text-left">
+          <h1
+            class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400"
+          >
+            To-Do List
+          </h1>
+          <p class="text-slate-400 mt-1">
+            Halo,
+            <span class="text-white font-semibold">{{ user.username }}</span>!
+            Semangat ya! 🚀
+          </p>
+        </div>
+
+        <a
+          href="{{ url_for('logout') }}"
+          class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 rounded-lg text-sm font-medium transition flex items-center gap-2"
+        >
+          <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+        </a>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="mb-6 space-y-2">
+        {% for category, message in messages %}
+        <div
+          class="flex items-center gap-2 px-4 py-3 rounded-xl border shadow-lg {% if category == 'success' %} bg-emerald-900/40 border-emerald-500/50 text-emerald-200 {% elif category == 'warning' %} bg-red-900/40 border-red-500/50 text-red-200 {% else %} bg-blue-900/40 border-blue-500/50 text-blue-200 {% endif %}"
+        >
+          {% if category == 'success' %}
+          <i data-lucide="check-circle" class="w-5 h-5"></i> {% elif category ==
+          'warning' %} <i data-lucide="trash" class="w-5 h-5"></i> {% else %}
+          <i data-lucide="info" class="w-5 h-5"></i> {% endif %}
+
+          <span class="font-medium">{{ message }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
+
+      <div
+        class="bg-slate-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-slate-700 overflow-hidden"
+      >
+        <div class="p-6 border-b border-slate-700 bg-slate-800">
+          <form
+            method="POST"
+            action="/add"
+            class="flex flex-col sm:flex-row gap-3"
+          >
+            <input
+              type="text"
+              name="task"
+              placeholder="Apa targetmu hari ini?"
+              required
+              class="flex-1 px-4 py-3 bg-slate-900 text-slate-200 border border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none placeholder-slate-500"
+            />
+            <input
+              type="date"
+              name="deadline"
+              class="px-4 py-3 bg-slate-900 text-slate-200 border border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer"
+            />
+            <select
+              name="category"
+              class="px-4 py-3 bg-slate-900 text-slate-200 border border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer"
+            >
+              <option value="">Kategori</option>
+              {% for cat in categories %}
+              <option value="{{ cat }}">{{ cat }}</option>
+              {% endfor %}
+            </select>
+            <button
+              type="submit"
+              class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl transition shadow-lg shadow-indigo-500/30"
+            >
+              <i data-lucide="plus" class="w-5 h-5"></i>
+            </button>
+          </form>
+        </div>
+
+        <div
+          class="px-6 py-4 border-b border-slate-700 bg-slate-800/50 flex flex-col md:flex-row justify-between gap-4 items-center"
+        >
+          <form action="/" method="GET" class="relative w-full md:w-auto">
+            <i
+              data-lucide="search"
+              class="absolute left-3 top-2.5 w-4 h-4 text-slate-500"
+            ></i>
+            <input
+              type="text"
+              name="q"
+              value="{{ search_query }}"
+              placeholder="Cari tugas..."
+              class="w-full md:w-64 pl-9 pr-4 py-1.5 bg-slate-900 border border-slate-600 rounded-lg text-sm text-slate-200 focus:border-indigo-500 outline-none transition"
+            />
+            {% if current_status != 'all' %}<input
+              type="hidden"
+              name="status"
+              value="{{ current_status }}"
+            />{% endif %} {% if current_category %}<input
+              type="hidden"
+              name="category"
+              value="{{ current_category }}"
+            />{% endif %}
+          </form>
+
+          <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
+            {% for status_opt, label in [('all', 'Semua'), ('active', 'Aktif'),
+            ('completed', 'Selesai')] %}
+            <a
+              href="{{ url_for('index', status=status_opt, category=current_category, q=search_query) }}"
+              class="px-4 py-1.5 text-sm rounded-md font-medium transition-all {% if current_status == status_opt %} bg-indigo-600 text-white shadow-md {% else %} text-slate-400 hover:text-slate-200 hover:bg-slate-800 {% endif %}"
+            >
+              {{ label }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div
+          class="px-6 py-2 border-b border-slate-700/50 bg-slate-800/30 overflow-x-auto whitespace-nowrap scrollbar-hide"
+        >
+          <div class="flex gap-2">
+            <a
+              href="{{ url_for('index', status=current_status, q=search_query) }}"
+              class="px-3 py-1 text-xs rounded-full border transition {% if not current_category %} border-indigo-500 bg-indigo-500/20 text-indigo-300 {% else %} border-slate-600 bg-slate-800 text-slate-400 hover:border-slate-500 {% endif %}"
+              >All</a
+            >
+            {% for cat in categories %}
+            <a
+              href="{{ url_for('index', status=current_status, category=cat, q=search_query) }}"
+              class="px-3 py-1 text-xs rounded-full border transition {% if current_category == cat %} border-indigo-500 bg-indigo-500/20 text-indigo-300 {% else %} border-slate-600 bg-slate-800 text-slate-400 hover:border-slate-500 {% endif %}"
+              >{{ cat }}</a
+            >
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="divide-y divide-slate-700/50">
+          {% if todos %} {% for todo in todos %}
+          <div class="p-5 hover:bg-slate-700/30 transition group">
+            <div class="flex items-start gap-4">
+              <a
+                href="{{ url_for('toggle', id=todo.id) }}"
+                class="mt-1 flex-shrink-0 transition-transform active:scale-90"
+              >
+                {% if todo.done %}
+                <div
+                  class="w-6 h-6 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center"
+                >
+                  <i
+                    data-lucide="check"
+                    class="w-3.5 h-3.5 text-emerald-500"
+                  ></i>
+                </div>
+                {% else %}
+                <div
+                  class="w-6 h-6 rounded-full border-2 border-slate-500 hover:border-indigo-400 transition"
+                ></div>
+                {% endif %}
+              </a>
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <span
+                    class="task-text text-lg font-medium text-slate-200 {% if todo.done %}task-done{% endif %}"
+                    >{{ todo.task }}</span
+                  >
+                  {% if todo.category %}
+                  <span
+                    class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border bg-slate-700 text-slate-300 border-slate-600"
+                    >{{ todo.category }}</span
+                  >
+                  {% endif %}
+                </div>
+                {% if todo.deadline %} {% set is_late = (not todo.done and
+                todo.deadline < today) %}
+                <div
+                  class="task-meta flex items-center gap-1.5 text-sm {% if is_late %}text-red-400{% else %}text-slate-400{% endif %}"
+                >
+                  <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>
+                  <span
+                    >{{ todo.deadline.strftime('%d %b %Y') }} {% if is_late %}
+                    (Telat!) {% endif %}</span
+                  >
+                </div>
+                {% endif %}
+              </div>
+              <div
+                class="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <a
+                  href="{{ url_for('edit', id=todo.id) }}"
+                  class="p-2 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition"
+                  ><i data-lucide="pencil" class="w-4 h-4"></i
+                ></a>
+                <a
+                  href="{{ url_for('delete', id=todo.id) }}"
+                  class="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                  onclick="return confirm('Hapus?')"
+                  ><i data-lucide="trash-2" class="w-4 h-4"></i
+                ></a>
+              </div>
+            </div>
+          </div>
+          {% endfor %} {% else %}
+          <div
+            class="py-16 text-center flex flex-col items-center justify-center"
+          >
+            {% if search_query %}
+            <p class="text-slate-400">
+              Tidak menemukan tugas dengan kata kunci "<strong
+                >{{ search_query }}</strong
+              >"
+            </p>
+            <a
+              href="{{ url_for('index') }}"
+              class="mt-2 text-indigo-400 hover:underline"
+              >Reset Pencarian</a
+            >
+            {% else %}
+            <i data-lucide="coffee" class="w-8 h-8 text-slate-500 mb-2"></i>
+            <p class="text-slate-500">Belum ada tugas.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
